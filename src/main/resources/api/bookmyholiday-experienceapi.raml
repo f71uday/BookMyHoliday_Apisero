@@ -1,0 +1,65 @@
+#%RAML 1.0
+title: BookMyHoliday-ExperienceAPI
+
+types:
+  TajHotelType: !include /Datatypes/dataType.raml
+
+
+/booking:
+  get:
+    queryParameters:
+      bookingType:
+        required: false
+        enum:
+          - Flight
+          - Hotel
+          - Cab
+         
+    
+    responses:
+      200:
+        body:
+          application/json:
+            
+            examples:
+              output: !include /ExampleData/example.raml              
+
+  post:
+    queryParameters:
+        bookingType:
+          required: false
+          enum:
+            - Flight
+            - Hotel
+            - Cab
+    body:
+      application/json:
+       
+        examples:
+          input: !include /ExampleData/examplePOST.raml
+
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: The booking is successful!!!
+
+      
+  /{City}:
+    get:
+      queryParameters:
+        bookingType:
+          required: false
+          enum:
+            - Flight
+            - Hotel
+            - Cab
+      responses:
+        200:
+          body:
+            application/json:
+              
+              example: !include /ExampleData/exampleURI.raml
+
+    

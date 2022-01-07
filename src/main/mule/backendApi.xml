@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="61e5ca01-7256-4bb5-8a8d-a10e6b0ec1de" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="Flight_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="db8df04c-5043-46f7-8593-6176530c8014" >
+		<http:request-connection host="pcsapi-indigo-getflights.us-e2.cloudhub.io" />
+	</http:request-config>
+	<http:request-config name="Hotel_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3967c1b4-e81c-4480-ba99-dc587b485925" >
+		<http:request-connection host="procapi-tajhotel.us-e2.cloudhub.io" />
+	</http:request-config>
+	<http:request-config name="Cabs_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1da6c654-f1e8-40bb-bb13-629bc0561283" >
+		<http:request-connection host="procapi-bookmyholiday-cabbooking.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="GetFlightsflow" doc:id="e1658895-ffcb-42a1-8e65-72ced742c0e0" >
+		<http:request method="GET" doc:name="Request" doc:id="7b92854b-af55-4c44-b815-bff86df57fd0" config-ref="Flight_HTTP_Request_configuration" path="/api/flights"/>
+		<logger level="INFO" doc:name="Logger" doc:id="cb11337c-f3b0-4345-993e-2d2ec4e217ad" message="Get Flights Excecuted"/>
+	</flow>
+	<flow name="GetFlightsByCity" doc:id="69b73e07-2618-49d7-b955-11b92f347ef7" >
+		<http:request method="GET" doc:name="Request" doc:id="2286e21e-1f86-4994-a333-8c1aaa4b1262" config-ref="Flight_HTTP_Request_configuration" path="/api/flights/{city}" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.uriParams.City
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="3b387637-673d-4341-8e9b-067b7f3ac476" message="Get Flights by city Excecuted"/>
+	</flow>
+	<flow name="BookFlightFlow" doc:id="7a3248fe-74ce-4353-b08f-06a3f97a6b12" >
+		<http:request method="POST" doc:name="Request" doc:id="c2f94f5f-d2e3-462b-8d3c-363f9a41e1ff" config-ref="Flight_HTTP_Request_configuration" path="/api/flights" >
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="c195629a-05c1-4b05-b691-1571d481651c" message="Book Flights Excecuted"/>
+	</flow>
+	<flow name="GetHotelFlow" doc:id="a09aac07-c1e2-4dbd-a514-527f636d3c16" >
+		<http:request method="GET" doc:name="Request" doc:id="dfbb9d86-efda-4e52-9146-185619b47330" config-ref="Hotel_HTTP_Request_configuration" path="/api/hotels"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c348f3f5-1698-4038-8826-c0e61c223449" message="Get hotels Excecuted"/>
+	</flow>
+	<flow name="GetHotelByCityFlow" doc:id="a4eb037c-6bba-41ed-8572-1b462b0b7587" >
+		<http:request method="GET" doc:name="Request" doc:id="4a195db4-a2db-4149-9f99-4b91453906b3" config-ref="Hotel_HTTP_Request_configuration" path="/api/hotels/{city}" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.uriParams.City
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="812fcc52-bd7f-4bf8-af1a-8dfa4f1cee70" message="Get by city Excecuted"/>
+	</flow>
+	<flow name="BookHotelFlow" doc:id="7ee2e183-1fba-46f1-ac6a-c5458571fc40" >
+		<http:request method="POST" doc:name="Request" doc:id="25f28da1-b5a7-4354-8b4d-ae2f600511ce" config-ref="Hotel_HTTP_Request_configuration" path="/api/hotels" />
+		<logger level="INFO" doc:name="Logger" doc:id="2709d93d-47fe-40f5-a451-571668546104" message="Book hotels Excecuted"/>
+	</flow>
+	<flow name="GetCabsFlow" doc:id="3feca3fe-9a39-4744-ace5-55f2b4d6979e" >
+		<http:request method="GET" doc:name="Request" doc:id="dfcecc0d-a8df-4c53-98f2-7984c0c854d7" config-ref="Cabs_HTTP_Request_configuration" path="/api/cabs"/>
+		<logger level="INFO" doc:name="Logger" doc:id="895fddd1-4a88-4a39-9841-b352e8dd9c38" message="Get cabs Excecuted"/>
+	</flow>
+	<flow name="GetCabsByCityFlow" doc:id="44a553e8-725b-4706-a888-39f129b18208" >
+		<http:request method="GET" doc:name="Request" doc:id="68f96685-925e-470e-9c36-2b294e04ac0b" config-ref="Cabs_HTTP_Request_configuration" path="/api/cabs/{city}" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.uriParams.City
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"destination" : attributes.queryParams.destination
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="613acb93-7006-4992-9e76-2bbff5999bf3" message="Get cabs by city Excecuted"/>
+	</flow>
+	<flow name="BookCabsFlow" doc:id="216e829d-d892-420c-b986-05e787200e34" >
+		<http:request method="POST" doc:name="Request" doc:id="8b93de4d-592f-42a0-a796-f79b2b2b9266" config-ref="Cabs_HTTP_Request_configuration" path="/api/cabs" />
+		<logger level="INFO" doc:name="Logger" doc:id="d02675d9-76aa-42aa-95eb-5c57650b6041" message="Book cabs Excecuted"/>
+	</flow>
+</mule>
