@@ -36,8 +36,8 @@
 					<cloudHubDeployment>
 						<uri>https://anypoint.mulesoft.com</uri>
 						<muleVersion>4.4.0</muleVersion>
-						<username>kruthi_777</username>
-						<password>Test@123</password>
+						<username>f71udayk</username>
+						<password>Uday3953@</password>
 
 						<workers>1</workers>
 						<workerType>MICRO</workerType>
