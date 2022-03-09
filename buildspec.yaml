@@ -6,7 +6,7 @@ phases:
       java: corretto8
   build:
     commands:
-      - mvn clean package --quiet
+      - mvn package deploy -DskipMunitTests -DmuleDeploy'
 artifacts:
   discard-paths: yes
   files:
