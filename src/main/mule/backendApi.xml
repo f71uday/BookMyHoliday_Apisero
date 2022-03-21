@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="61e5ca01-7256-4bb5-8a8d-a10e6b0ec1de" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="Flight_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="db8df04c-5043-46f7-8593-6176530c8014" >
+		<http:request-connection host="localhost:8081/api/flights?Origin=DEL&amp;Destination=BOM" />
+	</http:request-config>
+	<http:request-config name="Hotel_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3967c1b4-e81c-4480-ba99-dc587b485925" >
+		<http:request-connection host="procapi-tajhotel.us-e2.cloudhub.io" />
+	</http:request-config>
+	<http:request-config name="Cabs_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1da6c654-f1e8-40bb-bb13-629bc0561283" >
+		<http:request-connection host="procapi-bookmyholiday-cabbooking.us-e2.cloudhub.io" />
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="b3f04133-cd92-451a-8e51-4f6409ece046" file="application.properties" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5a2b68b8-71b6-4cfa-9c19-c1bfa66d14a7" >
+	
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}">
+		<db:connection-properties >
+			<db:connection-property key="useSSL" value="false" />
+		</db:connection-properties>
+		</db:my-sql-connection>
+	</db:config>
+	<flow name="GetFlightsflow" doc:id="e1658895-ffcb-42a1-8e65-72ced742c0e0" >
+		<logger level="INFO" doc:name="InputReq" doc:id="559f9263-e5f5-45f8-adbc-c13d269b4da5" message="#[payload]" />
+		<db:select doc:id="80137cd6-1d33-439c-a831-eae97ba50fe6" config-ref="Database_Config">
+			<db:sql ><![CDATA[Select * from flight_details where origin = :origin and destination = :destination and available_seats > 0]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ origin : attributes.queryParams.Origin ,
+  destination: attributes.queryParams.Destination
+  }]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="9471c0cc-8d4e-4dc1-b543-0716301d24c3" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	FlightID: payload01.flight_id,
+	FlightCode: payload01.flight_code default "",
+	EmptySeats: payload01.available_seats default 0,
+	TotalSeats: payload01.total_seats default 0,
+	Airline: payload01.airline default "",
+	Origin: payload01.origin default "",
+	Destination: payload01.destination default "",
+	Price: payload01.price default 0,
+	PlaneType: payload01.plane_type default "",
+	DepartureDate: payload01.departure_date as String default "",
+	DepartureTime: payload01.departure_time as String default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="GetFlightsByCity" doc:id="9868ccde-f7dc-4c55-8114-3743762c7566" >
+		<logger level="INFO" doc:name="Logger" doc:id="6ec30b9c-f5a6-4582-a2e6-0ee7cb35ca69" />
+	</flow>
+	<flow name="BookFlightFlow" doc:id="7a3248fe-74ce-4353-b08f-06a3f97a6b12" >
+		<set-variable value="#[payload.FlightID]" doc:name="Set Variable" doc:id="2a2991a2-f26e-4264-bbbc-0f9cc63fe7bf" variableName="flight_id" />
+		<set-variable value='#["FL" ++ payload.ContactNo ++ payload.FlightID]' doc:name="CreateBookingID" doc:id="6bc5cc94-ae01-4616-b397-da8f6232118c" variableName="booking_id" />
+		<logger level="INFO" doc:name="inputReq" doc:id="c0e1f925-94c7-4753-ac7a-007705456ae2" message="#[payload]" />
+		<db:insert doc:name="Bookflight" doc:id="7fd70384-5e19-4520-8181-186ce5813444" queryTimeout="10" queryTimeoutUnit="MINUTES" target="flightid" targetValue="#[payload.FlightID]" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into flight_booking(age, booking_id, contact_no, email, flight_id, name)
+values(:age,:bookingid, :contactno, :email, :flightid, :name);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output application/json
+---
+{
+	name: payload.Name,
+	flightid: payload.FlightID as String,
+	age: payload.Age as String,
+	bookingid: vars.booking_id as String,
+	email: payload.Email,
+	contactno: payload.ContactNo as String
+}]]]></db:input-parameters>
+		</db:insert>
+		<db:update doc:name="Update" doc:id="5dbed649-601f-43a8-8b1b-b6231aca6439" config-ref="Database_Config">
+			<db:sql ><![CDATA[Update flight_details set available_seats = available_seats - 1 where flight_id=:flightid]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	flightid: vars.flight_id
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="f3739941-fa8d-4c21-858d-945725392d73" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Booking added successfully your booking_id is:" ++ vars.booking_id
+  
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="GetHotelFlow" doc:id="a09aac07-c1e2-4dbd-a514-527f636d3c16" >
+		<logger level="INFO" doc:name="Logger" doc:id="7aff9b3f-a2b3-43e7-83aa-68ec994cadc5" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="149197df-1a86-438f-9ec2-b1a1849df3e7" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from hotel_details where hotel_add=:City and available_rooms>=1]]></db:sql>
+			<db:input-parameters ><![CDATA[#[City:  attributes.queryParams.city]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="d4ae29e2-3712-477d-b15b-e355943aed02" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+
+---
+{
+	Response:
+	hotels:
+	 {
+		(payload map(hotel,indexOfhotel)->{
+			hotel:
+		
+			{
+			Hotel_ID: hotel.hotel_id,
+			Hotel_Name: hotel.hotel_name,
+			Available_Rooms: hotel.available_rooms,
+			Hotel_Address: hotel.hotel_add
+		}})
+		
+		}
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="GetHotelByCityFlow" doc:id="a4eb037c-6bba-41ed-8572-1b462b0b7587" >
+		<http:request method="GET" doc:name="Request" doc:id="4a195db4-a2db-4149-9f99-4b91453906b3" config-ref="Hotel_HTTP_Request_configuration" path="/api/hotels/{city}" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.uriParams.City
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="812fcc52-bd7f-4bf8-af1a-8dfa4f1cee70" message="Get by city Excecuted"/>
+	</flow>
+	<flow name="BookHotelFlow" doc:id="7ee2e183-1fba-46f1-ac6a-c5458571fc40" >
+		<set-variable value="#[attributes.queryParams.Hotel_ID]" doc:name="Hotel_ID" doc:id="13b381dd-8a80-4266-83b6-d9981ff831ed" variableName="Hotel_ID" />
+		<set-variable value='#["H" ++ vars.Hotel_ID as String ++ attributes.queryParams.contactNo]' doc:name="Booking_ID" doc:id="934d131e-6d93-46f4-bc24-7033c801c715" variableName="Booking_ID" />
+		<db:insert doc:name="Insert" doc:id="bbe4ca80-6acf-427d-a7d5-3b949cd941fb" config-ref="Database_Config" >
+			<db:sql ><![CDATA[insert into hotel_booking values (:hotel_id,:booking_id,:guest_name,:address,:contact,:checkin_date,:checkout_date);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	hotel_id: attributes.queryParams.HotelID,
+	guest_name: attributes.queryParams.Name,
+	address: attributes.queryParams.add,
+	checkin_date: attributes.queryParams.checkin_Date,
+	checkout_date: attributes.queryParams.checkout_Date,
+	contact: attributes.queryParams.contactNo,
+	booking_id: vars.Booking_ID
+}]]]></db:input-parameters>
+		</db:insert>
+		<db:update doc:name="Update" doc:id="164cc8e9-9081-4f80-a6ad-58d81924196b" config-ref="Database_Config" >
+			<db:sql ><![CDATA[update hotel_details set available_rooms = available_rooms - 1 where hotel_id = :hotel_id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	hotel_id: vars.Hotel_ID
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="919d1493-3906-4439-ae27-5a2a96d7f887" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns soap http://schemas.xmlsoap.org/soap/envelope
+---
+{ 
+	Response_Message: "Booking Added. Your Booking ID is "
+		++ vars.Booking_ID
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="GetCabsFlow" doc:id="3feca3fe-9a39-4744-ace5-55f2b4d6979e" >
+		<http:request method="GET" doc:name="Request" doc:id="dfcecc0d-a8df-4c53-98f2-7984c0c854d7" config-ref="Cabs_HTTP_Request_configuration" path="/api/cabs"/>
+		<logger level="INFO" doc:name="Logger" doc:id="895fddd1-4a88-4a39-9841-b352e8dd9c38" message="Get cabs Excecuted"/>
+	</flow>
+	<flow name="GetCabsByCityFlow" doc:id="44a553e8-725b-4706-a888-39f129b18208" >
+		<http:request method="GET" doc:name="Request" doc:id="68f96685-925e-470e-9c36-2b294e04ac0b" config-ref="Cabs_HTTP_Request_configuration" path="/api/cabs/{city}" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.uriParams.City
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"destination" : attributes.queryParams.destination
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="613acb93-7006-4992-9e76-2bbff5999bf3" message="Get cabs by city Excecuted"/>
+	</flow>
+	<flow name="BookCabsFlow" doc:id="216e829d-d892-420c-b986-05e787200e34" >
+		<http:request method="POST" doc:name="Request" doc:id="8b93de4d-592f-42a0-a796-f79b2b2b9266" config-ref="Cabs_HTTP_Request_configuration" path="/api/cabs" />
+		<logger level="INFO" doc:name="Logger" doc:id="d02675d9-76aa-42aa-95eb-5c57650b6041" message="Book cabs Excecuted"/>
+	</flow>
+</mule>
