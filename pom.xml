@@ -30,7 +30,12 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
-					
+					<sharedLibraries>
+						<sharedLibrary>
+							<groupId>mysql</groupId>
+							<artifactId>mysql-connector-java</artifactId>
+						</sharedLibrary>
+					</sharedLibraries>
 					<cloudHubDeployment>
 						<uri>https://anypoint.mulesoft.com</uri>
 						<muleVersion>4.4.0</muleVersion>
@@ -40,7 +45,7 @@
 						<workerType>MICRO</workerType>
 						<region>us-east-2</region>
 						<environment>Sandbox</environment>
-						<applicationName>bookmyholiday</applicationName>
+						<applicationName>bookmyholiday-expapi-application</applicationName>
 						<objectStoreV2>true</objectStoreV2>
 					</cloudHubDeployment>
 				</configuration>
@@ -85,11 +90,29 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
+			<groupId>com.mulesoft.connectors</groupId>
+			<artifactId>mule-amazon-s3-connector</artifactId>
+			<version>5.8.0</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.modules</groupId>
+			<artifactId>mule-secure-configuration-property-module</artifactId>
+			<version>1.2.3</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
 			<groupId>bae195de-5454-4957-a0ed-87687919b06d</groupId>
 			<artifactId>bookmyholiday</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.3</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.connectors</groupId>
+			<artifactId>mule-objectstore-connector</artifactId>
+			<version>1.2.1</version>
+			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
 

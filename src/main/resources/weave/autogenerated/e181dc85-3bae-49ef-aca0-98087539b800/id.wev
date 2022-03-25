@@ -1,4 +1,4 @@
 %dw 2.0
 
-type auto_e181dc85_3bae_49ef_aca0_98087539b800_Output_Variables_flight_id = Any
+type auto_e181dc85_3bae_49ef_aca0_98087539b800_Output_Variables_Hotel_ID = Any
 
