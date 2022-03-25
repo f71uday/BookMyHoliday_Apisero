@@ -101,7 +101,13 @@
 			<version>1.2.3</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
-		
+		<dependency>
+			<groupId>bae195de-5454-4957-a0ed-87687919b06d</groupId>
+			<artifactId>bookmyholiday</artifactId>
+			<version>1.0.3</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
+		</dependency>
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-objectstore-connector</artifactId>
