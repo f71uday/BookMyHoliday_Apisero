@@ -9,7 +9,7 @@ type auto_e181dc85_3bae_49ef_aca0_98087539b800_Input_Attributes = {|
   headers: {|  |}, 
   listenerPath: String, 
   method: String, 
-  queryParams: {| city: String |}, 
+  queryParams: {| bookingType: "Cab" | "Flight" | "Hotel" |}, 
   queryString: String, 
   relativePath: String, 
   remoteAddress: String, 

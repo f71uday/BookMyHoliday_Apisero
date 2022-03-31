@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:s3="http://www.mulesoft.org/schema/mule/s3" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
     <http:listener-config name="bookmyholiday-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="bookmyholiday-config" api="resource::bae195de-5454-4957-a0ed-87687919b06d:bookmyholiday:1.0.1:raml:zip:bookmyholiday.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="bookmyholiday-config" api="resource::bae195de-5454-4957-a0ed-87687919b06d:bookmyholiday:2.0.1:raml:zip:bookmyholiday.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="bookmyholiday-main">
         <http:listener config-ref="bookmyholiday-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -123,22 +123,17 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="get:\bookHotel:bookmyholiday-config">
-        <flow-ref doc:name="getDetails" doc:id="68b34264-0a23-41d1-98ff-c66e20c79d4a" name="getDetails" />
-    </flow>
     <flow name="get:\booking:bookmyholiday-config">
         <flow-ref doc:name="getDetails" doc:id="321e409b-ba09-4e40-a256-c55d0db7f3c3" name="getDetails" />
     </flow>
-    <flow name="post:\Cancel:bookmyholiday-config">
-        <flow-ref doc:name="cancelBooking" doc:id="a7a1b106-6bbf-4c6b-b8c8-992d07ee9ef0" name="CancelBookings" />
+    <flow name="post:\booking:bookmyholiday-config">
+        <flow-ref doc:name="cancelBooking" doc:id="a7a1b106-6bbf-4c6b-b8c8-992d07ee9ef0" name="BookResources" />
     </flow>
-    <flow name="post:\bookHotel:bookmyholiday-config">
-        <flow-ref doc:name="BookResources" doc:id="ba2e3b32-1cf5-4dfc-800f-3780fff8f9f6" name="BookResources" />
+    <flow name="put:\booking:bookmyholiday-config">
+        <set-variable value="#[attributes.queryParams.bookingID]" doc:name="bookingID" doc:id="14041ef8-11fc-454b-baad-f7fec5e70392" variableName="bookingID" />
+        <flow-ref doc:name="Flow Reference" doc:id="f8a9b2cc-4f9e-4080-9ba1-6c15800e2b6b" name="CancelBookings" />
     </flow>
     <flow name="post:\booking:application\json:bookmyholiday-config">
-        <flow-ref doc:name="BookResources" doc:id="84d26a5f-ac00-4346-9df5-4f94e06a2095" name="BookResources" />
-    </flow>
-    <flow name="post:\cancelHotel:bookmyholiday-config">
-        <flow-ref doc:name="CancelHotel" doc:id="8b7a4e13-a6b7-4fa3-82ef-5202fdd82e8f" name="CancelBookings" />
+        <flow-ref doc:name="Flow Reference" doc:id="9955560d-8e18-43ee-90d5-5c2f84c84da4" name="BookResources" />
     </flow>
 </mule>

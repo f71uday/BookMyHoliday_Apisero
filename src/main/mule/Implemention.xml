@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="7f695ec2-da55-4a65-8826-7bef5960ae19" />
 	<flow name="VariableFlow" doc:id="81e08515-3f76-49c2-bd8f-9d77ee7de088" >
 		<set-variable value='#[attributes.queryParams.bookingType]' doc:name="Set Variable" doc:id="6f211f8f-0d8e-4580-9309-6fdce6dee408" variableName="bookingType"/>
@@ -32,7 +33,7 @@ output application/json
 				<flow-ref doc:name="GetFlights" doc:id="5937b478-8b3e-481a-a20e-c26f327c0b7a" name="GetFlightsflow"/>
 			</when>
 			<when expression='vars.bookingType == "Cab"'>
-				<flow-ref doc:name="GetCabs" doc:id="967dc3e9-7c2e-4e7b-ba91-0b296ae4371a" name="GetCabsFlow"/>
+				<flow-ref doc:name="GetCabs" doc:id="967dc3e9-7c2e-4e7b-ba91-0b296ae4371a" name="getCabsFlow"/>
 			</when>
 			<when expression='#[vars.bookingType == "Hotel"]'>
 				<flow-ref doc:name="GetHotels" doc:id="91c6371c-56b5-4020-a568-ca3445e9c2b7" name="GetHotelFlow" />
@@ -69,13 +70,13 @@ output application/json
 		<flow-ref doc:name="VariableFlow" doc:id="892fcc1e-a381-42e4-aa05-3193124c2105" name="VariableFlow" />
 		<choice doc:name="Choice" doc:id="9fee1398-ca42-443f-a5df-7a9a2faac744" >
 			<when expression='#[vars.bookingType == "Flight"]' >
-				<flow-ref doc:name="GetFlight" doc:id="1f2bd748-3cbe-4408-a8c8-5260527bf028" name="GetFlightsByCity" />
+				<flow-ref doc:name="CancelFlight" doc:id="1f2bd748-3cbe-4408-a8c8-5260527bf028" name="CancelFlightBooking" />
 			</when>
 			<when expression='vars.bookingType == "Cab"' >
-				<flow-ref doc:name="GetCab" doc:id="7d9f2035-719b-404e-96b6-84614831abe5" name="GetCabsByCityFlow" />
+				<flow-ref doc:name="GetCab" doc:id="7d9f2035-719b-404e-96b6-84614831abe5" name="cancelcabBooking" />
 			</when>
 			<when expression='#[vars.bookingType == "Hotel"]'>
-				<flow-ref doc:name="GetHotel" doc:id="132e69f9-dc92-4246-861c-61eb18e72805" name="GetHotelByCityFlow" />
+				<flow-ref doc:name="GetHotel" doc:id="132e69f9-dc92-4246-861c-61eb18e72805" name="CancelHotelBooking" />
 			</when>
 			<otherwise>
 				<ee:transform doc:name="DisplayMessage" doc:id="c9784d89-f0b0-40d5-bede-3038b13bc878" >
@@ -112,7 +113,7 @@ output application/json
 				<flow-ref doc:name="BookFlight" doc:id="28ce9c34-90cc-4f17-9fa4-4e29c4d5750d" name="BookFlightFlow" />
 			</when>
 			<when expression='vars.bookingType == "Cab"' >
-				<flow-ref doc:name="BookCabs" doc:id="d8c79ed1-2b40-46b3-98a2-4dc8b9a6a4bc" name="BookCabsFlow" />
+				<flow-ref doc:name="BookCabs" doc:id="d8c79ed1-2b40-46b3-98a2-4dc8b9a6a4bc" name="addBookingFlow" />
 			</when>
 			<when expression='#[vars.bookingType == "Hotel"]'>
 				<flow-ref doc:name="BookHotel" doc:id="ae30cfba-8e8a-44ee-9f33-70b1fa190c2c" name="BookHotelFlow" />
@@ -145,4 +146,5 @@ output application/json
 			</on-error-propagate>
 		</error-handler>
 	</flow>
+
 </mule>
