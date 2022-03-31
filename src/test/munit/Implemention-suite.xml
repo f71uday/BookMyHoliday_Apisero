@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="Implemention-suite.xml" />
+	<munit:test name="getDetails-Flight-Test" doc:id="6d67e6fc-b9c3-4ea2-b4cd-8fe87ae26975" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="65713315-efcd-4b33-b702-364bd85aa84b" >
+				<munit:payload value="#[readUrl('classpath://getDetailstest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getDetailstest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getDetailstest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getDetails" doc:id="9d11be15-102e-4115-b92f-3efb968de404" name="getDetails"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="eae6049d-5521-4e95-a2dd-170f90694092" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getDetailstest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="getDetails-Cab-Test" doc:id="7f19bdbf-e254-4cc9-be1b-ade246f94a0a" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="80661894-eb6d-4f5d-8722-5065a9addef9" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://getDetailstest1\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://getDetailstest1\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getDetailstest1\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getDetails" doc:id="8ad071cc-71fa-4acf-a7f5-960b89ea28ce" name="getDetails"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="82a77efe-721b-4dc2-b793-88ba37d65e48" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getDetailstest1::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="getDetails-Hotel_test" doc:id="f729d877-f18d-4cf9-8ea5-ff336bee8fcf" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="08fa2638-079a-452b-86ed-0c041efb6513" >
+				<munit:payload value="#[readUrl('classpath://getDetailstest\set-event_payload1.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getDetailstest\set-event_attributes1.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getDetailstest\set-event_variable_1.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getDetails" doc:id="2b836b00-dec2-4ae0-a2dd-fc40d015dd3b" name="getDetails"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="a4ef5bfd-2e2c-4e25-9cae-f58f1171274c" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getDetailstest::assert_expression_payload1
+---
+assert_expression_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="CancelBookings-Flight-test" doc:id="7881ff1a-91a8-4a85-a137-4dfd5d91d720" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="8006104b-c84a-4f06-9ac2-7e3be6a3a447" >
+				<munit:payload value="#[readUrl('classpath://CancelBookingstest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://CancelBookingstest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://CancelBookingstest\set-event_variable_.dwl')]" />
+					<munit:variable key="bookingID" value="#[output application/java --- readUrl('classpath://CancelBookingstest\set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to CancelBookings" doc:id="779f9b97-c25b-487b-9c80-2f2a2f11b377" name="CancelBookings"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="6351713b-ad77-4c55-8460-843c91cbd4b9" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import CancelBookingstest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
